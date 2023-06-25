@@ -1,0 +1,93 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="General">
+
+        <SwitchPreference
+            android:key="add_new_tasks_on_top"
+            android:title="Add new Task on Top"
+            android:summary="Enable"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="confirm_task_before_deleting"
+            android:title="Confirm Task before deleting"
+            android:summary="Enable"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Task">
+
+        <SwitchPreference
+            android:key="all"
+            android:title="All"
+            android:summary="Enable"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="important"
+            android:title="Important"
+            android:summary="Enable"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="due"
+            android:title="Due"
+            android:summary="Enable"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:key="deleted"
+            android:title="Deleted"
+            android:summary="Enable"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Notifications">
+
+        <CheckBoxPreference
+            android:key="notifications_preference"
+            android:title="Enable Notifications"
+            android:summary="Receive notifications"
+            android:defaultValue="true" />
+
+        <ListPreference
+            android:key="reminder_to_do_task"
+            android:title="Reminder to do your Task"
+            android:entries="@array/pref_task_reminder"
+            android:entryValues="@array/pref_duration"
+            android:defaultValue="3"
+            android:dialogTitle="@string/reminder_to_do_your_task" />
+        />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Help and Feedback">
+
+        <SwitchPreference
+            android:key="GetSupport"
+            android:title="Get Support"
+            android:summary="mytodo@amilly.com"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Display">
+
+        <SwitchPreference
+            android:key="display_dark_mode_preference"
+            android:title="Dark Mode"
+            android:summary="Enable dark mode"
+            android:dependency="display_dark_mode_preference"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+</PreferenceScreen>
+

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "932731823160",
+    "project_id": "mytodo-40ede",
+    "storage_bucket": "mytodo-40ede.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932731823160:android:c3cf25f1350ae7a669b2cd",
+        "android_client_info": {
+          "package_name": "com.faith.mytodo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "932731823160-o6nnl0sed39fi83s6s08vdkfiufqj44b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-gRXmTMHXrSYo3TO2OoSPpq0ANSZ_snQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "932731823160-o6nnl0sed39fi83s6s08vdkfiufqj44b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
