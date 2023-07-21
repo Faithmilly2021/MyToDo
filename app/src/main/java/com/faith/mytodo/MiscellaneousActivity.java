@@ -1,12 +1,14 @@
 package com.faith.mytodo;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-
-import com.faith.mytodo.Adapter.ToDoAdapter;
+import com.faith.mytodo.Adapter.GroupDoAdapter;
 import com.faith.mytodo.Model.ToDoModel;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -22,9 +24,10 @@ import java.util.List;
 
 public class MiscellaneousActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
-    private ToDoAdapter adapter;
+    private GroupDoAdapter adapter;
     private List<ToDoModel> mList;
     private RecyclerView recyclerView;
+    private List<ToDoModel> individualTasksList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,20 +35,38 @@ public class MiscellaneousActivity extends AppCompatActivity {
         setContentView(R.layout.activity_miscellaneous);
 
         recyclerView = findViewById(R.id.recyclerView);
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(this, 1, getResources().getColor(R.color.white));
-        recyclerView.addItemDecoration(itemDecoration);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(itemDecoration);
+
         firestore = FirebaseFirestore.getInstance();
 
+        individualTasksList = new ArrayList<>();
         mList = new ArrayList<>();
-        adapter = new ToDoAdapter(this, mList, false); // Set displayDueDate to false
+       // adapter = new GroupDoAdapter(this, fragmentManager, mList, "Miscellaneous");
+
+        adapter = new GroupDoAdapter(this, getSupportFragmentManager(), mList, "Miscellaneous", new CategoryClickListener() {
+            @Override
+            public void onCategoryClick(ToDoModel toDoModel) {
+                // Handle the category click event here
+                // For example, you can open the TaskActivity and pass necessary data
+                // Intent intent = new Intent(GoalsActivity.this, TaskActivity.class);
+                // intent.putExtra("categoryName", toDoModel.getCategoryName());
+                // intent.putStringArrayListExtra("tasksListForCategory", (ArrayList<String>) toDoModel.getTasks());
+                // startActivity(intent);
+            }
+        });
+
         recyclerView.setAdapter(adapter);
 
-        showData();
+        fetchGroupTasks();
     }
 
-    private void showData() {
-        firestore.collection("groups").document("Miscellaneous").collection("tasks")
+    private void fetchGroupTasks() {
+        firestore.collection("groups")
+                .document("Miscellaneous")
+                .collection("tasks")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -60,7 +81,6 @@ public class MiscellaneousActivity extends AppCompatActivity {
                             if (documentChange.getType() == DocumentChange.Type.ADDED) {
                                 String id = documentChange.getDocument().getId();
                                 ToDoModel toDoModel = documentChange.getDocument().toObject(ToDoModel.class).withId(id);
-
                                 mList.add(toDoModel);
                             }
                         }

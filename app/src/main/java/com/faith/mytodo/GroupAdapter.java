@@ -17,14 +17,20 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
 
     private List<TaskGroup> groupsList;
     private OnItemClickListener listener;
+    private OnCategoryClickListener categoryClickListener;
 
     public interface OnItemClickListener {
         void onItemClick(int position);
     }
 
-    public GroupAdapter(List<TaskGroup> groupsList, OnItemClickListener listener) {
+    public interface OnCategoryClickListener {
+        void onCategoryClick(TaskGroup taskGroup);
+    }
+
+    public GroupAdapter(List<TaskGroup> groupsList, OnItemClickListener listener, OnCategoryClickListener categoryClickListener) {
         this.groupsList = groupsList;
         this.listener = listener;
+        this.categoryClickListener = categoryClickListener;
     }
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder {
@@ -37,26 +43,23 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
             groupIcon = itemView.findViewById(R.id.groupIcon);
         }
 
-        public void bind(final TaskGroup taskGroup, final OnItemClickListener listener, Context context) {
-            if (taskGroup.getName().equals("Hey! Don't forget to group your tasks accordingly")) {
-                groupName.setClickable(false);
-                groupName.setOnClickListener(null);
-                groupName.setTextAppearance(context, R.style.TextAppearance_AppCompat_Body1);
-                groupName.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                groupName.setPadding(0, context.getResources().getDimensionPixelSize(R.dimen.drawable_padding), 0, 0);
-            } else {
-                groupName.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+        public void bind(final TaskGroup taskGroup, final OnItemClickListener listener, final OnCategoryClickListener categoryClickListener, Context context) {
+            groupName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Handle the click event for both categories and groups
+                    if (taskGroup.isCategory()) {
+                        categoryClickListener.onCategoryClick(taskGroup);
+                    } else {
                         listener.onItemClick(getAdapterPosition());
                     }
-                });
-                groupName.setTextColor(context.getResources().getColor(R.color.white));
-                groupName.setTextAppearance(context, R.style.TextAppearance_AppCompat_Title);
-                groupName.setCompoundDrawablePadding(context.getResources().getDimensionPixelSize(R.dimen.drawable_padding));
-                groupName.setCompoundDrawablesWithIntrinsicBounds(taskGroup.getIconResourceId(), 0, 0, 0);
-                groupName.setPadding(0, 50, 0, 0);
-            }
+                }
+            });
+            groupName.setTextColor(context.getResources().getColor(R.color.white));
+            groupName.setTextAppearance(context, R.style.TextAppearance_AppCompat_Title);
+            groupName.setCompoundDrawablePadding(context.getResources().getDimensionPixelSize(R.dimen.drawable_padding));
+            groupName.setCompoundDrawablesWithIntrinsicBounds(taskGroup.getIconResourceId(), 0, 0, 0);
+            groupName.setPadding(0, 50, 0, 0);
 
             groupName.setText(taskGroup.getName());
 
@@ -80,7 +83,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
     @Override
     public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
         TaskGroup taskGroup = groupsList.get(position);
-        holder.bind(taskGroup, listener, holder.itemView.getContext());
+        holder.bind(taskGroup, listener, categoryClickListener, holder.itemView.getContext());
     }
 
     @Override
@@ -88,5 +91,3 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         return groupsList.size();
     }
 }
-
-

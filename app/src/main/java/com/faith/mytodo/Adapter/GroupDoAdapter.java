@@ -1,49 +1,53 @@
 package com.faith.mytodo.Adapter;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.faith.mytodo.AddNewTasks;
+import com.faith.mytodo.CategoryClickListener;
 import com.faith.mytodo.Model.ToDoModel;
 import com.faith.mytodo.R;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 
 public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHolder> {
     private List<ToDoModel> mytodo;
-    private Activity activity;
-    private FirebaseFirestore firestore;
+    public Activity activity;
+    private FragmentManager fragmentManager;
     private String groupName;
+    private CategoryClickListener categoryClickListener;
 
-    public GroupDoAdapter(Activity activity, List<ToDoModel> mytodo, String groupName) {
+    public GroupDoAdapter(Activity activity, FragmentManager fragmentManager, List<ToDoModel> mytodo, String groupName, CategoryClickListener categoryClickListener) {
         this.mytodo = mytodo;
         this.activity = activity;
+        this.fragmentManager = fragmentManager;
         this.groupName = groupName;
-        firestore = FirebaseFirestore.getInstance();
+        this.categoryClickListener = categoryClickListener;
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(activity).inflate(R.layout.group_task_layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_task, parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ToDoModel toDoModel = mytodo.get(position);
-        holder.mcheckbox.setText(toDoModel.getTask()); // Set the task text
-        holder.mduedatetv.setText(activity.getString(R.string.due_date_format, toDoModel.getDueDate()));
-        holder.mstaricon.setVisibility(View.VISIBLE); // Show the star icon
+        holder.mcheckbox.setText(toDoModel.getTask());
+        holder.mstaricon.setVisibility(View.VISIBLE);
 
         holder.mcheckbox.setChecked(toBoolean(toDoModel.getStatus()));
 
@@ -51,18 +55,18 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    firestore.collection("groups")
-                            .document(groupName)
-                            .collection("tasks")
-                            .document(toDoModel.getTask())
-                            .update("status", 1);
+                    // Perform action when checkbox is checked
                 } else {
-                    firestore.collection("groups")
-                            .document(groupName)
-                            .collection("tasks")
-                            .document(toDoModel.getTask())
-                            .update("status", 0);
+                    // Perform action when checkbox is unchecked
                 }
+            }
+        });
+
+        // Set the click listener for the category item
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                categoryClickListener.onCategoryClick(toDoModel); // Pass the clicked ToDoModel to the CategoryClickListener
             }
         });
     }
@@ -71,19 +75,41 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
         return status != 0;
     }
 
+    public void setTasks(List<ToDoModel> mytodo) {
+        this.mytodo = mytodo;
+        notifyDataSetChanged();
+    }
+
+    public void deleteTask(int position) {
+        ToDoModel item = mytodo.get(position);
+        mytodo.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public void editItem(int position) {
+        ToDoModel item = mytodo.get(position);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", item.getStatus());
+        bundle.putString("task", item.getTask());
+
+        AddNewTasks task = new AddNewTasks();
+        task.setArguments(bundle);
+
+        task.show(fragmentManager, task.getTag());
+    }
+
     @Override
     public int getItemCount() {
         return mytodo.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView mduedatetv;
         CheckBox mcheckbox;
         ImageView mstaricon;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            mduedatetv = itemView.findViewById(R.id.due_date_tv);
             mcheckbox = itemView.findViewById(R.id.mcheckbox);
             mstaricon = itemView.findViewById(R.id.star_icon);
         }

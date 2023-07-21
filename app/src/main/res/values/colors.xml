@@ -15,4 +15,7 @@
     <color name="groupColor3">#0000FF</color>
     <color name="groupColor4">#FFFF00</color>
     <color name="groupColor5">#FF00FF</color>
+    <color name="swipeDeleteBackground">#001299</color>
+    <color name="swipeEditBackground">#FF7220</color>
+
 </resources>

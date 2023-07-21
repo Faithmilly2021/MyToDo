@@ -10,15 +10,19 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,94 +35,83 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.faith.mytodo.Adapter.ToDoAdapter;
-import com.faith.mytodo.Model.ToDoModel;
+import com.faith.mytodo.GroupAdapter;
+import com.faith.mytodo.TaskGroup;
+import com.faith.mytodo.TaskActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+public class MainActivity extends AppCompatActivity implements GroupAdapter.OnItemClickListener, DialogInterface.OnDismissListener, SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener, GroupAdapter.OnCategoryClickListener {
 
-
-
-public class MainActivity extends AppCompatActivity implements GroupAdapter.OnItemClickListener, DialogInterface.OnDismissListener, SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener {
     private static final String CHANNEL_ID = "ToDoListChannel";
     private static final int NOTIFICATION_ID = 1;
 
     private List<TaskGroup> groupsList;
     private GroupAdapter groupAdapter;
+    private List<TaskGroup> categoriesList;
     private TextView notificationCount;
     private DrawerLayout drawerLayout;
     private BottomNavigationView bottomNavigationView;
     private NavigationView navigationView;
     private RecyclerView recyclerView;
     private SearchView searchView;
-
-
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setItemBackgroundResource(R.color.dark_blue);
-
-
-        // layout params of the ConstraintLayout
-        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) bottomNavigationView.getLayoutParams();
-
-        // the constraints for the BottomNavigationView
-        layoutParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
-        layoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-        bottomNavigationView.setLayoutParams(layoutParams);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#192A56")));
-
+        fab = findViewById(R.id.fab);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        recyclerView = findViewById(R.id.recyclerView);
         notificationCount = findViewById(R.id.notification_count);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
-        recyclerView = findViewById(R.id.recyclerView);
-
-
 
         // Set up ActionBarDrawerToggle
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.menu_Open, R.string.close_menu);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#192A56")));
 
         // Set up NavigationView
-        navigationView.setNavigationItemSelectedListener((NavigationView.OnNavigationItemSelectedListener) this);
+        navigationView.setNavigationItemSelectedListener(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        groupsList = new ArrayList<>();
-       groupsList.add(new TaskGroup("Hey! Don't forget to group your task accordingly", "", "", Arrays.asList("Task1", "Task2"), Arrays.asList(R.color.groupColor1), true, R.drawable.ic_groupicon));
-        groupsList.add(new TaskGroup("Personal", "groupId1", "Personal", Arrays.asList("Task1", "Task2"), Arrays.asList(R.color.groupColor1), false, R.drawable.ic_account));
-        groupsList.add(new TaskGroup("Work", "groupId2", "Work", Arrays.asList("Task3", "Task4"), Arrays.asList(R.color.groupColor2), true, R.drawable.ic_work));
-        groupsList.add(new TaskGroup("Goals", "groupId3", "Goals", Arrays.asList("Task5", "Task6"), Arrays.asList(R.color.groupColor3), true, R.drawable.ic_editcalendar));
-        groupsList.add(new TaskGroup("Miscellaneous", "groupId4", "Miscellaneous", Arrays.asList("Task7", "Task8"), Arrays.asList(R.color.groupColor4), false, R.drawable.ic_list));
-        groupsList.add(new TaskGroup("Private", "groupId5", "Private", Arrays.asList("Task9", "Task10"), Arrays.asList(R.color.groupColor5), true, R.drawable.ic_privacy));
-
-        groupAdapter = new GroupAdapter(groupsList, this);
+        // Assuming you have initialized the 'groupAdapter' properly
+        groupAdapter = new GroupAdapter(new ArrayList<>(), this, this);
         recyclerView.setAdapter(groupAdapter);
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAddCategoryDialog();
+            }
+        });
+
+        groupsList = new ArrayList<>();
+        groupsList.add(new TaskGroup("Personal", "groupId1", "Personal", "11:49", "26-06-2023", Arrays.asList("Task1", "Task2"), Arrays.asList(R.color.groupColor1), false, R.drawable.ic_account, false));
+        groupsList.add(new TaskGroup("Work", "groupId2", "Work", "11:49", "26-06-2023", Arrays.asList("Task3", "Task4"), Arrays.asList(R.color.groupColor2), true, R.drawable.ic_work, true));
+        groupsList.add(new TaskGroup("Goals", "groupId3", "Goals", "11:49", "26-06-2023", Arrays.asList("Task5", "Task6"), Arrays.asList(R.color.groupColor3), true, R.drawable.ic_editcalendar, true));
+        groupsList.add(new TaskGroup("Miscellaneous", "groupId4", "Miscellaneous", "11:49", "26-06-2023", Arrays.asList("Task7", "Task8"), Collections.singletonList(R.color.groupColor4), false, R.drawable.ic_list, false));
+        groupsList.add(new TaskGroup("Private", "groupId5", "Private", "11:49", "26-06-2023", Arrays.asList("Task9", "Task10"), Collections.singletonList(R.color.groupColor5), true, R.drawable.ic_privacy, true));
+
+        //groupAdapter.setGroupsList(groupsList);
+
+        groupAdapter = new GroupAdapter(groupsList, this, this);
+        recyclerView.setAdapter(groupAdapter);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -138,12 +131,45 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
                     case R.id.nav_private:
                         startActivity(new Intent(MainActivity.this, PrivateActivity.class));
                         return true;
-
                 }
                 return false;
             }
         });
+    }
 
+    private void showAddCategoryDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_add_category);
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        final EditText categoryEditText = dialog.findViewById(R.id.category_edit_text);
+        Button addButton = dialog.findViewById(R.id.add_button);
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String categoryName = categoryEditText.getText().toString().trim();
+                if (!categoryName.isEmpty()) {
+                    List<String> tasksListForCategory = new ArrayList<>();
+                    TaskGroup newGroup = new TaskGroup(categoryName, "groupId", categoryName, "11:49", "26-06-2023", tasksListForCategory, new ArrayList<>(), false, R.drawable.ic_lists, false);
+                    groupsList.add(newGroup);
+                    groupAdapter.notifyDataSetChanged();
+                    Toast.makeText(MainActivity.this, "Category added: " + categoryName, Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+
+                    // Here's the code to navigate to the TaskActivity
+                    Intent intent = new Intent(MainActivity.this, TaskActivity.class);
+                    // You can pass any necessary data to the TaskActivity using intent.putExtra() if needed
+                    // For example, if you want to pass the category name:
+                    // intent.putExtra("categoryName", categoryName);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "Please enter a category name", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        dialog.show();
     }
 
     @Override
@@ -157,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -169,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -283,13 +307,20 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
         }
     }
 
-    @Override
+
     public void onItemClick(int position) {
         TaskGroup group = groupsList.get(position);
         Intent intent = new Intent(MainActivity.this, GroupTaskActivity.class);
         intent.putExtra("groupName", group.getName());
         intent.putExtra("groupsList", (ArrayList<TaskGroup>) groupsList);
-        intent.putExtra("position", position);
+        startActivity(intent);
+    }
+
+    // Set up the click listener for categories
+    @Override
+    public void onCategoryClick(TaskGroup taskGroup) {
+        Intent intent = new Intent(MainActivity.this, TaskActivity.class);
+        intent.putExtra("categoryName", taskGroup.getName());
         startActivity(intent);
     }
 }

@@ -1,56 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_blue"
-    tools:context=".GroupTaskActivity">
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add New Task"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
 
     <EditText
         android:id="@+id/duetaskDescription"
-        android:layout_width="375dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="30dp"
-        android:hint="Write your Task here..."
-        android:textColorHint="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Write Your task Here..."
+        android:inputType="text"/>
 
-    <Button
-        android:id="@+id/dueDateButton"
-        android:layout_width="167dp"
-        android:layout_height="44dp"
-        android:layout_marginTop="10dp"
-        android:text="Set Due Date"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toStartOf="@+id/dueTimeButton"
-        app:layout_constraintStart_toStartOf="@+id/duetaskDescription"
-        app:layout_constraintTop_toBottomOf="@+id/duetaskDescription" />
-
-
-    <Button
-        android:id="@+id/dueTimeButton"
-        android:layout_width="167dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:text="Set Due Time"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toEndOf="@+id/dueDateButton"
-        app:layout_constraintTop_toBottomOf="@+id/duetaskDescription" />
 
     <Button
         android:id="@+id/dueSavebutton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="Save Task"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="@+id/duetaskDescription"
-        app:layout_constraintStart_toStartOf="@+id/duetaskDescription"
-        app:layout_constraintTop_toBottomOf="@+id/dueDateButton" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/btn_round"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

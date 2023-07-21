@@ -1,14 +1,17 @@
 package com.faith.mytodo;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.faith.mytodo.Adapter.GroupDoAdapter;
 import com.faith.mytodo.Model.ToDoModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,7 +28,10 @@ public class WorkActivity extends AppCompatActivity {
     private FirebaseFirestore firestore;
     private GroupDoAdapter adapter;
     private List<ToDoModel> mList;
+
     private RecyclerView recyclerView;
+    private List<ToDoModel> individualTasksList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,22 +40,34 @@ public class WorkActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        FragmentManager fragmentManager = getSupportFragmentManager();
         DividerItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(itemDecoration);
 
         firestore = FirebaseFirestore.getInstance();
 
+        individualTasksList = new ArrayList<>();
+        // individualTasksList =new ArrayList<>();
         mList = new ArrayList<>();
-        //adapter = new GroupDoAdapter(this, mList);
-        adapter = new GroupDoAdapter(this, mList, "Work");
+        //adapter = new GroupDoAdapter(this, fragmentManager,  mList, "Work");
+        adapter = new GroupDoAdapter(this, getSupportFragmentManager(), mList, "Work", new CategoryClickListener() {
+            @Override
+            public void onCategoryClick(ToDoModel toDoModel) {
+                // Handle the category click event here
+                // For example, you can open the TaskActivity and pass necessary data
+                // Intent intent = new Intent(GoalsActivity.this, TaskActivity.class);
+                // intent.putExtra("categoryName", toDoModel.getCategoryName());
+                // intent.putStringArrayListExtra("tasksListForCategory", (ArrayList<String>) toDoModel.getTasks());
+                // startActivity(intent);
+            }
+        });
 
         recyclerView.setAdapter(adapter);
 
-        fetchWorkTasks();
+        fetchGroupTasks();
     }
 
-    private void fetchWorkTasks() {
+    private void fetchGroupTasks() {
         firestore.collection("groups")
                 .document("Work")
                 .collection("tasks")
@@ -78,4 +96,6 @@ public class WorkActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
 }

@@ -9,9 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyToDo">
+        <activity android:name=".TaskActivity"
+            android:theme="@style/Theme.MyToDo.NoActionBar" />
+        <activity
+            android:name=".AddNewTaskActivity"
+            android:theme="@style/Theme.MyToDo.NoActionBar" />
         <activity
             android:name=".MiscellaneousActivity"
-            android:theme="@style/Theme.MyToDo.NoActionBar"></activity>
+            android:theme="@style/Theme.MyToDo.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.MyToDo.NoActionBar" />

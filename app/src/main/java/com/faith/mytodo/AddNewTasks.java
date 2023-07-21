@@ -1,7 +1,6 @@
 package com.faith.mytodo;
 
 import android.app.Activity;
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -11,12 +10,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-
-
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -28,30 +24,26 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
-public class AddNewTask extends BottomSheetDialogFragment {
+public class AddNewTasks extends BottomSheetDialogFragment {
 
     public static final String TAG = "AddNewTask";
 
     private EditText taskDes;
-    private Button dateBtn, timeBtn, saveBtn;
+    private TextView saveBtn;
     private FirebaseFirestore firestore;
     private Context context;
-    private String dueDate = "";
 
-    public static AddNewTask newInstance() {
-        return new AddNewTask();
+    public static AddNewTasks newInstance() {
+        return new AddNewTasks();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.add_new_task, container, false);
+        return inflater.inflate(R.layout.add_new_tasks, container, false);
     }
 
     @Override
@@ -59,8 +51,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         taskDes = view.findViewById(R.id.taskDescription);
-        dateBtn = view.findViewById(R.id.DateButton);
-        timeBtn = view.findViewById(R.id.TimeButton);
         saveBtn = view.findViewById(R.id.Savebutton);
 
         firestore = FirebaseFirestore.getInstance();
@@ -72,7 +62,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().equals("")) {
+                if (s.toString().isEmpty()) {
                     saveBtn.setEnabled(false);
                     saveBtn.setBackgroundColor(Color.GRAY);
                 } else {
@@ -86,27 +76,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
             }
         });
 
-        dateBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar calendar = Calendar.getInstance();
-
-                int MONTH = calendar.get(Calendar.MONTH);
-                int YEAR = calendar.get(Calendar.YEAR);
-                int DAY = calendar.get(Calendar.DATE);
-
-                DatePickerDialog datePickerDialog = new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        month = month + 1;
-                        dateBtn.setText(dayOfMonth + "/" + month + "/" + year);
-                        dueDate = dayOfMonth + "/" + month + "/" + year;
-                    }
-                }, YEAR, MONTH, DAY);
-                datePickerDialog.show();
-            }
-        });
-
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,34 +84,18 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 if (task.isEmpty()) {
                     Toast.makeText(context, "Empty task is not allowed!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Map<String, Object> taskMap = new HashMap<>();
-
-                    taskMap.put("task", task);
-                    taskMap.put("due", dueDate);
-                    taskMap.put("status", 0);
-
-                    firestore.collection("groups").document(getGroupName()).collection("tasks")
-                            .add(taskMap)
-                            .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentReference> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(context, "Task Saved", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(context, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    saveTask(task);
                 }
                 dismiss();
             }
         });
+    }
+
+    public void saveTask(String task) {
+        Map<String, Object> taskMap = new HashMap<>();
+        taskMap.put("task", task);
+        taskMap.put("status", 0);
+
     }
 
     @Override
@@ -160,8 +113,6 @@ public class AddNewTask extends BottomSheetDialogFragment {
         }
     }
 
-    private String getGroupName() {
-        return getActivity().getIntent().getStringExtra("groupName");
+    public class OnSaveClickListener {
     }
 }
-

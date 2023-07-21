@@ -1,5 +1,7 @@
 package com.faith.mytodo;
 
+import com.faith.mytodo.Model.ToDoModel;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -7,17 +9,22 @@ import java.util.List;
         private String name;
         private String groupId;
         private String groupName;
+        private String dueTime;
+        private String duedate;
         private List<String> tasks;
         private List<Integer> colors;
         private boolean includeDueDateTime;
         private int iconResourceId;
         private boolean clickable;
+        public boolean isCategory;
 
 
-        public TaskGroup (String name, String groupId, String groupName, List<String> tasks, List<Integer> colors, boolean includeDueDateTime, int iconResourceId ) {
+        public TaskGroup(String name, String groupId, String groupName, String dueTime, String duedate, List<String> tasks, List<Integer> colors, boolean includeDueDateTime, int iconResourceId, boolean clickable) {
             this.name = name;
             this.groupId = groupId;
             this.groupName = groupName;
+            this.dueTime = dueTime;
+            this.duedate = duedate;
             this.tasks = tasks;
             this.colors = colors;
             this.includeDueDateTime = includeDueDateTime;
@@ -25,7 +32,8 @@ import java.util.List;
             this.clickable = clickable;
         }
 
-    public String getName() {
+
+        public String getName() {
         return name;
     }
 
@@ -35,6 +43,14 @@ import java.util.List;
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getDueTime(){
+            return dueTime;
+    }
+
+    public  String getDuedate(){
+            return duedate;
     }
 
         public int getIconResourceId() {
@@ -53,4 +69,7 @@ import java.util.List;
             return clickable;
         }
 
+        public boolean isCategory() {
+            return isCategory;
+        }
     }

@@ -3,6 +3,7 @@
     <string name="menu_Open">menu_open</string>
     <string name="close_menu">close_menu</string>
     <string name="due_date_format">Due on: %1$s</string>
+    <string name="due_time_format">Due at: %1$s</string>
     <string name="channel_name">Your Channel Name</string>
     <string name="channel_description">Your Channel Description</string>
     <string name="notification_icon_description">Description of the notification icon</string>
@@ -34,6 +35,8 @@
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="set_due_time">Set Due Time</string>
+    <string name="set_due_date">Set Due Date</string>
 
 
 </resources>
