@@ -9,11 +9,6 @@
             android:icon="@drawable/ic_settings"
             android:title="Settings" />
 
-        <item
-            android:id="@+id/nav_recyclebin"
-            android:icon="@drawable/ic_bin"
-            android:title="Recyclebin" />
-
 
     </group>
 

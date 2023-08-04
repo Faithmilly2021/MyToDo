@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -35,6 +36,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.faith.mytodo.Adapter.CategoriesAdapter;
 import com.faith.mytodo.GroupAdapter;
 import com.faith.mytodo.TaskGroup;
 import com.faith.mytodo.TaskActivity;
@@ -42,13 +44,18 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements GroupAdapter.OnItemClickListener, DialogInterface.OnDismissListener, SearchView.OnQueryTextListener, NavigationView.OnNavigationItemSelectedListener, GroupAdapter.OnCategoryClickListener {
 
@@ -57,42 +64,55 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
 
     private List<TaskGroup> groupsList;
     private GroupAdapter groupAdapter;
-    private List<TaskGroup> categoriesList;
     private TextView notificationCount;
     private DrawerLayout drawerLayout;
     private BottomNavigationView bottomNavigationView;
     private NavigationView navigationView;
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView, recyclerView1;
     private SearchView searchView;
     private FloatingActionButton fab;
+    private FirebaseFirestore firestore;
+    private CategoriesAdapter categoriesAdapter;
+    private FirebaseAuth firebaseAuth;
+    private List<TaskGroup> categoriesList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         fab = findViewById(R.id.fab);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         recyclerView = findViewById(R.id.recyclerView);
+        recyclerView1 = findViewById(R.id.caterecyclerView);
         notificationCount = findViewById(R.id.notification_count);
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
 
-        // Set up ActionBarDrawerToggle
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.menu_Open, R.string.close_menu);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#192A56")));
 
-        // Set up NavigationView
         navigationView.setNavigationItemSelectedListener(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-
-        // Assuming you have initialized the 'groupAdapter' properly
         groupAdapter = new GroupAdapter(new ArrayList<>(), this, this);
         recyclerView.setAdapter(groupAdapter);
+
+        // Initialize categoriesList with categories from SharedPreferences
+        categoriesList = new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        Set<String> categoriesSet = sharedPreferences.getStringSet("categories", new HashSet<>());
+        Log.d("Categories", categoriesSet.toString());
+        recyclerView1.setHasFixedSize(true);
+        recyclerView1.setLayoutManager(new LinearLayoutManager(this));
+        CategoriesAdapter categoriesAdapter = new CategoriesAdapter(categoriesList, this);
+        recyclerView1.setAdapter(categoriesAdapter);
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,40 +122,37 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
         });
 
         groupsList = new ArrayList<>();
-        groupsList.add(new TaskGroup("Personal", "groupId1", "Personal", "11:49", "26-06-2023", Arrays.asList("Task1", "Task2"), Arrays.asList(R.color.groupColor1), false, R.drawable.ic_account, false));
-        groupsList.add(new TaskGroup("Work", "groupId2", "Work", "11:49", "26-06-2023", Arrays.asList("Task3", "Task4"), Arrays.asList(R.color.groupColor2), true, R.drawable.ic_work, true));
-        groupsList.add(new TaskGroup("Goals", "groupId3", "Goals", "11:49", "26-06-2023", Arrays.asList("Task5", "Task6"), Arrays.asList(R.color.groupColor3), true, R.drawable.ic_editcalendar, true));
-        groupsList.add(new TaskGroup("Miscellaneous", "groupId4", "Miscellaneous", "11:49", "26-06-2023", Arrays.asList("Task7", "Task8"), Collections.singletonList(R.color.groupColor4), false, R.drawable.ic_list, false));
-        groupsList.add(new TaskGroup("Private", "groupId5", "Private", "11:49", "26-06-2023", Arrays.asList("Task9", "Task10"), Collections.singletonList(R.color.groupColor5), true, R.drawable.ic_privacy, true));
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
-        //groupAdapter.setGroupsList(groupsList);
+       if (currentUser != null) {
+            String userId = currentUser.getUid();
+            groupsList.add(new TaskGroup("Personal", "groupId1", "Personal", Arrays.asList("Task1", "Task2"), null, R.drawable.ic_account, true, userId, false));
+            groupsList.add(new TaskGroup("Goals", "groupId3", "Goals", Arrays.asList("Task5", "Task6"), null, R.drawable.ic_editcalendar, true, userId, false));
+            groupsList.add(new TaskGroup("Miscellaneous", "groupId4", "Miscellaneous", Arrays.asList("Task1", "Task2"), null, R.drawable.ic_list, true, userId, false));
+            groupsList.add(new TaskGroup("Private", "groupId2", "Private", Arrays.asList("Task3", "Task4"), null, R.drawable.ic_privacy, true, userId, false));
 
+        } else {
+            // Handling the case where the user is not authenticated
+        }
         groupAdapter = new GroupAdapter(groupsList, this, this);
         recyclerView.setAdapter(groupAdapter);
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_personal:
-                        startActivity(new Intent(MainActivity.this, PersonalActivity.class));
+                    case R.id.nav_important:
+                        startActivity(new Intent(MainActivity.this, ImportantActivity.class));
                         return true;
-                    case R.id.nav_work:
-                        startActivity(new Intent(MainActivity.this, WorkActivity.class));
-                        return true;
-                    case R.id.nav_goals:
-                        startActivity(new Intent(MainActivity.this, GoalsActivity.class));
-                        return true;
-                    case R.id.nav_miscellaneous:
-                        startActivity(new Intent(MainActivity.this, MiscellaneousActivity.class));
-                        return true;
-                    case R.id.nav_private:
-                        startActivity(new Intent(MainActivity.this, PrivateActivity.class));
+                    case R.id.nav_delete:
+                        startActivity(new Intent(MainActivity.this, DeletedActivity.class));
                         return true;
                 }
                 return false;
             }
         });
     }
+
 
     private void showAddCategoryDialog() {
         final Dialog dialog = new Dialog(this);
@@ -144,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
 
         final EditText categoryEditText = dialog.findViewById(R.id.category_edit_text);
         Button addButton = dialog.findViewById(R.id.add_button);
+        CategoriesAdapter categoriesAdapter = new CategoriesAdapter(categoriesList, this);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,26 +169,58 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
                 String categoryName = categoryEditText.getText().toString().trim();
                 if (!categoryName.isEmpty()) {
                     List<String> tasksListForCategory = new ArrayList<>();
-                    TaskGroup newGroup = new TaskGroup(categoryName, "groupId", categoryName, "11:49", "26-06-2023", tasksListForCategory, new ArrayList<>(), false, R.drawable.ic_lists, false);
-                    groupsList.add(newGroup);
-                    groupAdapter.notifyDataSetChanged();
-                    Toast.makeText(MainActivity.this, "Category added: " + categoryName, Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
 
-                    // Here's the code to navigate to the TaskActivity
-                    Intent intent = new Intent(MainActivity.this, TaskActivity.class);
-                    // You can pass any necessary data to the TaskActivity using intent.putExtra() if needed
-                    // For example, if you want to pass the category name:
-                    // intent.putExtra("categoryName", categoryName);
-                    startActivity(intent);
+                    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                    FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
+                    if (currentUser != null) {
+                        String userId = currentUser.getUid();
+                        TaskGroup newGroup = new TaskGroup(categoryName, "groupId", categoryName, tasksListForCategory, Collections.singletonList(R.drawable.ic_lists), 0, true, userId, true);
+
+                        categoriesList.add(newGroup);
+                        categoriesAdapter.notifyDataSetChanged();
+                        Toast.makeText(MainActivity.this, "Category added: " + categoryName, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+
+                        // Save the category in Firestore
+                        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                        firestore.collection("categories").add(newGroup)
+                                .addOnSuccessListener(documentReference -> {
+                                    // Successfully added to Firestore
+                                    Toast.makeText(MainActivity.this, "Category saved in Firestore", Toast.LENGTH_SHORT).show();
+
+                                    // Save the category in SharedPreferences
+                                    saveCategoryToSharedPreferences(categoryName);
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Failed to add to Firestore
+                                    Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+
+                        Intent intent = new Intent(MainActivity.this, TaskActivity.class);
+                        intent.putExtra("categoryName", categoryName);
+                        startActivity(intent);
+                    } else {
+
+                        Toast.makeText(MainActivity.this, "User not authenticated", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(MainActivity.this, "Please enter a category name", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+
         dialog.show();
     }
+
+
+private void saveCategoryToSharedPreferences(String categoryName) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        Set<String> categoriesSet = sharedPreferences.getStringSet("categories", new HashSet<>());
+        categoriesSet.add(categoryName);
+        sharedPreferences.edit().putStringSet("categories", categoriesSet).apply();
+        }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -250,7 +300,6 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
 
     @Override
     public void onDismiss(DialogInterface dialog) {
-        // Handle dialog dismiss event
     }
 
     @Override
@@ -269,9 +318,6 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         drawerLayout.closeDrawer(GravityCompat.START);
         switch (item.getItemId()) {
-            case R.id.nav_recyclebin:
-                startActivity(new Intent(MainActivity.this, RecyclebinActivity.class));
-                return true;
             case R.id.nav_settings:
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
@@ -303,24 +349,25 @@ public class MainActivity extends AppCompatActivity implements GroupAdapter.OnIt
             notificationCount.setVisibility(View.VISIBLE);
             notificationCount.setText(String.valueOf(notificationCountValue));
         } else {
-            notificationCount.setVisibility(View.GONE);
+            notificationCount.setVisibility(View.VISIBLE);
         }
     }
 
 
     public void onItemClick(int position) {
         TaskGroup group = groupsList.get(position);
-        Intent intent = new Intent(MainActivity.this, GroupTaskActivity.class);
+        Intent intent = new Intent(MainActivity.this, TaskActivity.class);
         intent.putExtra("groupName", group.getName());
         intent.putExtra("groupsList", (ArrayList<TaskGroup>) groupsList);
         startActivity(intent);
     }
 
-    // Set up the click listener for categories
+
     @Override
     public void onCategoryClick(TaskGroup taskGroup) {
         Intent intent = new Intent(MainActivity.this, TaskActivity.class);
-        intent.putExtra("categoryName", taskGroup.getName());
+        intent.putExtra("CategoryName", taskGroup.getName());
         startActivity(intent);
     }
+
 }

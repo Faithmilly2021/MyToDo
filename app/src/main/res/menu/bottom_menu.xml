@@ -3,30 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:checkableBehavior="single">
-                    <item
-                        android:id="@+id/nav_personal"
-                        android:title="Personal"
-                        android:icon="@drawable/ic_account" />
+
 
                     <item
-                        android:id="@+id/nav_work"
-                        android:title="Work"
-                        android:icon="@drawable/ic_work" />
+                        android:id="@+id/nav_important"
+                        android:title="Important"
+                        android:icon="@drawable/ic_star" />
 
                     <item
-                        android:id="@+id/nav_goals"
-                        android:title="Goals"
-                        android:icon="@drawable/ic_editcalendar" />
+                        android:id="@+id/nav_delete"
+                        android:title="Deleted"
+                        android:icon="@drawable/ic_delete" />
 
-                    <item
-                        android:id="@+id/nav_miscellaneous"
-                        android:title="Miscellaneous"
-                        android:icon="@drawable/ic_list" />
 
-                    <item
-                        android:id="@+id/nav_private"
-                        android:title="Private"
-                        android:icon="@drawable/ic_privacy" />
 
                 </group>
             </menu>

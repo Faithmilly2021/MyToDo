@@ -16,15 +16,36 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- RecyclerView for categories/titles -->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="76dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp" />
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp" />
+
+                <!-- View to be placed between RecyclerViews -->
+                <View
+                    android:id="@+id/separatorView"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@android:color/darker_gray"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerView"
+                    app:layout_constraintBottom_toTopOf="@id/caterecyclerView" />
+
+                <!-- Second RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/caterecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="10dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@id/separatorView"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    tools:layout_editor_absoluteX="0dp" />
 
             <!-- FloatingActionButton for adding categories/titles -->
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -51,9 +72,9 @@
                 app:labelVisibilityMode="labeled"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.997"
+                app:layout_constraintVertical_bias="1.0"
                 app:menu="@menu/bottom_menu"
-                tools:layout_editor_absoluteX="30dp" />
+                tools:layout_editor_absoluteX="-57dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

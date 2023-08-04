@@ -1,12 +1,14 @@
 package com.faith.mytodo;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -44,10 +46,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
         }
 
         public void bind(final TaskGroup taskGroup, final OnItemClickListener listener, final OnCategoryClickListener categoryClickListener, Context context) {
+            if (taskGroup == null) {
+                return;
+            }
+
             groupName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Handle the click event for both categories and groups
                     if (taskGroup.isCategory()) {
                         categoryClickListener.onCategoryClick(taskGroup);
                     } else {
@@ -55,12 +60,23 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
                     }
                 }
             });
+
             groupName.setTextColor(context.getResources().getColor(R.color.white));
             groupName.setTextAppearance(context, R.style.TextAppearance_AppCompat_Title);
             groupName.setCompoundDrawablePadding(context.getResources().getDimensionPixelSize(R.dimen.drawable_padding));
-            groupName.setCompoundDrawablesWithIntrinsicBounds(taskGroup.getIconResourceId(), 0, 0, 0);
-            groupName.setPadding(0, 50, 0, 0);
 
+            int iconResourceId = taskGroup.getIconResourceId();
+            Drawable leftDrawable;
+
+            if (iconResourceId != 0) {
+                leftDrawable = ContextCompat.getDrawable(context, iconResourceId);
+            } else {
+                leftDrawable = ContextCompat.getDrawable(context, R.drawable.ic_groupicon); // Default drawable
+            }
+
+            groupName.setCompoundDrawablesWithIntrinsicBounds(leftDrawable, null, null, null);
+
+            groupName.setPadding(0, 50, 0, 0);
             groupName.setText(taskGroup.getName());
 
             groupIcon.setImageResource(taskGroup.getIconResourceId());
@@ -70,9 +86,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.GroupViewHol
                     context.getResources().getDimensionPixelSize(R.dimen.drawable_padding),
                     0);
         }
+
     }
 
-    @NonNull
+        @NonNull
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();

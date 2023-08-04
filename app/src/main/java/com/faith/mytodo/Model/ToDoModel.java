@@ -3,9 +3,12 @@ package com.faith.mytodo.Model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.List;
+import com.google.firebase.database.PropertyName;
 
-public class ToDoModel implements Parcelable{
+import java.util.List;
+import com.google.firebase.firestore.Exclude;
+
+public class ToDoModel implements Parcelable {
     private String task;
     private String id;
     private String group;
@@ -13,22 +16,32 @@ public class ToDoModel implements Parcelable{
     private String CategoryName;
     private int status;
     private boolean isImportant;
-    // private String categoryName;
+    private boolean isDeleted;
     private List<String> tasks;
+    private String userId;
 
-    public ToDoModel(String task, String id, String group, String groupName, String CategoryName, List<String> tasks, int status, boolean isImportant) {
+    public ToDoModel(String task, String id, String group, String groupName, String CategoryName, List<String> tasks, int status, boolean isImportant, boolean isDeleted, String userId) {
         this.task = task;
         this.id = id;
         this.group = group;
         this.groupName = groupName;
         this.CategoryName = CategoryName;
-        this.tasks = tasks;
+        this.tasks = null;
         this.status = status;
         this.isImportant = isImportant;
+        this.isDeleted = isDeleted;
+        this.userId = userId;
+        //this.isGroup = false;
     }
 
     public ToDoModel() {
         // Empty constructor required by Firebase Firestore.
+    }
+
+    public ToDoModel(String taskName, String groupName, int status) {
+        this.task = taskName;
+        this.groupName = groupName;
+        this.status = status;
     }
 
     public ToDoModel withId(String id) {
@@ -45,11 +58,9 @@ public class ToDoModel implements Parcelable{
         tasks = in.createStringArrayList();
         status = in.readInt();
         isImportant = in.readByte() != 0;
-    }
-    public ToDoModel(String taskDetails) {
-        // Initialize your fields here
-        // For example:
-        // this.taskDetails = taskDetails;
+        isDeleted = in.readByte() !=0;
+        userId = in.readString();
+        //isGroup = in.readByte() != 0; // Read the isGroup value from Parcel
     }
 
     public static final Creator<ToDoModel> CREATOR = new Creator<ToDoModel>() {
@@ -72,14 +83,6 @@ public class ToDoModel implements Parcelable{
         this.task = task;
     }
 
-    public List<String> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<String> tasks) {
-        this.tasks = tasks;
-    }
-
     public String getId() {
         return id;
     }
@@ -88,10 +91,12 @@ public class ToDoModel implements Parcelable{
         this.id = id;
     }
 
+    @PropertyName("isGroup")
     public String getGroup() {
         return group;
     }
 
+    @PropertyName("isGroup")
     public void setGroup(String group) {
         this.group = group;
     }
@@ -109,7 +114,7 @@ public class ToDoModel implements Parcelable{
     }
 
     public void setCategoryName(String categoryName) {
-        this.CategoryName = CategoryName;
+        this.CategoryName = categoryName;
     }
 
     public int getStatus() {
@@ -128,6 +133,31 @@ public class ToDoModel implements Parcelable{
         isImportant = important;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public List<String> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<String> tasks) {
+        this.tasks = tasks;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -137,9 +167,11 @@ public class ToDoModel implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(task);
         dest.writeString(group);
+        dest.writeString(userId);
         dest.writeString(groupName);
         dest.writeInt(status);
         dest.writeByte((byte) (isImportant ? 1 : 0));
+        dest.writeByte((byte) (isDeleted ? 1 : 0));
     }
 }
 

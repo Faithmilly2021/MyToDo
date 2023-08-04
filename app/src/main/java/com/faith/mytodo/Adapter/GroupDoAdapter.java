@@ -13,9 +13,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.faith.mytodo.AddNewTasks;
-import com.faith.mytodo.CategoryClickListener;
-import com.faith.mytodo.Model.ToDoModel;
 import com.faith.mytodo.R;
+import com.faith.mytodo.TaskGroup;
+import com.faith.mytodo.Model.ToDoModel;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -26,14 +26,14 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
     public Activity activity;
     private FragmentManager fragmentManager;
     private String groupName;
-    private CategoryClickListener categoryClickListener;
+    private OnItemClickListener itemClickListener;
 
-    public GroupDoAdapter(Activity activity, FragmentManager fragmentManager, List<ToDoModel> mytodo, String groupName, CategoryClickListener categoryClickListener) {
+    public GroupDoAdapter(Activity activity, FragmentManager fragmentManager, List<ToDoModel> mytodo, String groupName, OnItemClickListener itemClickListener) {
         this.mytodo = mytodo;
         this.activity = activity;
         this.fragmentManager = fragmentManager;
         this.groupName = groupName;
-        this.categoryClickListener = categoryClickListener;
+        this.itemClickListener = itemClickListener;
     }
 
     @NonNull
@@ -66,7 +66,7 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                categoryClickListener.onCategoryClick(toDoModel); // Pass the clicked ToDoModel to the CategoryClickListener
+                itemClickListener.onCategoryClick(toDoModel); // Pass the clicked ToDoModel to the OnItemClickListener
             }
         });
     }
@@ -75,29 +75,6 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
         return status != 0;
     }
 
-    public void setTasks(List<ToDoModel> mytodo) {
-        this.mytodo = mytodo;
-        notifyDataSetChanged();
-    }
-
-    public void deleteTask(int position) {
-        ToDoModel item = mytodo.get(position);
-        mytodo.remove(position);
-        notifyItemRemoved(position);
-    }
-
-    public void editItem(int position) {
-        ToDoModel item = mytodo.get(position);
-
-        Bundle bundle = new Bundle();
-        bundle.putInt("id", item.getStatus());
-        bundle.putString("task", item.getTask());
-
-        AddNewTasks task = new AddNewTasks();
-        task.setArguments(bundle);
-
-        task.show(fragmentManager, task.getTag());
-    }
 
     @Override
     public int getItemCount() {
@@ -113,5 +90,10 @@ public class GroupDoAdapter extends RecyclerView.Adapter<GroupDoAdapter.MyViewHo
             mcheckbox = itemView.findViewById(R.id.mcheckbox);
             mstaricon = itemView.findViewById(R.id.star_icon);
         }
+    }
+
+    // Interface for item click events
+    public interface OnItemClickListener {
+        void onCategoryClick(ToDoModel toDoModel);
     }
 }

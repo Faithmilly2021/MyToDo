@@ -1,6 +1,7 @@
 package com.faith.mytodo;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.faith.mytodo.utils.firebaseUtil;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,8 +18,13 @@ public class SplashActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                if (firebaseUtil.isLoggedIn()){
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                }else {
+                    startActivity(new Intent(SplashActivity.this, RegistrationActivity.class));
+                }
                 finish();
+
             }
         } , 5000);
     }
