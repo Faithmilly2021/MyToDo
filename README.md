@@ -15,6 +15,7 @@ Click Category and add task, and view them
 Edit and delete existing tasks
 
 **Top Menu**
+
 Search button to search task
 
 Notifications to see reminder for due date tasks
