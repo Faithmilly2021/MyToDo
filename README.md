@@ -33,7 +33,7 @@ Logout
 
 Important to view important tasks
 
-Deleted to view deleted tasks
+Completed to view completed tasks
 
 
 I am still building the App, not done yet
